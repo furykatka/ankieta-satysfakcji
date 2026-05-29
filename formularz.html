@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ankieta satysfakcji</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f3;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      color: #1a1a18;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px 36px;
+      max-width: 540px;
+      width: 100%;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    .logo {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 28px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #1a1a18;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: #666;
+      margin-bottom: 36px;
+      line-height: 1.5;
+    }
+
+    .question {
+      margin-bottom: 32px;
+    }
+
+    .question label {
+      display: block;
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      color: #1a1a18;
+    }
+
+    /* Skala gwiazdkowa */
+    .stars {
+      display: flex;
+      gap: 8px;
+    }
+
+    .stars input[type="radio"] { display: none; }
+
+    .stars label {
+      font-size: 28px;
+      cursor: pointer;
+      color: #ddd;
+      transition: color 0.15s;
+      margin-bottom: 0;
+      font-weight: 400;
+    }
+
+    .stars:has(input:checked) label { color: #ddd; }
+
+    .stars input:checked ~ label,
+    .stars label:hover,
+    .stars label:hover ~ label { color: #ddd; }
+
+    /* Gwiazdki - podświetlenie od lewej do zaznaczonej */
+    .stars { flex-direction: row-reverse; justify-content: flex-end; }
+
+    .stars label:hover,
+    .stars label:hover ~ label,
+    .stars input:checked + label ~ label,
+    .stars input:checked + label { color: #f5a623; }
+
+    /* Skala NPS (0–10) */
+    .nps-scale {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .nps-scale input[type="radio"] { display: none; }
+
+    .nps-scale label {
+      width: 40px;
+      height: 40px;
+      border: 1.5px solid #e0e0dc;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #555;
+      transition: all 0.15s;
+      margin-bottom: 0;
+    }
+
+    .nps-scale label:hover {
+      border-color: #7F77DD;
+      color: #7F77DD;
+      background: #EEEDFE;
+    }
+
+    .nps-scale input:checked + label {
+      background: #7F77DD;
+      border-color: #7F77DD;
+      color: #fff;
+    }
+
+    .nps-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 12px;
+      color: #999;
+    }
+
+    /* Pole tekstowe */
+    textarea {
+      width: 100%;
+      border: 1.5px solid #e0e0dc;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1a1a18;
+      resize: vertical;
+      min-height: 100px;
+      transition: border-color 0.15s;
+      outline: none;
+      background: #fafaf8;
+    }
+
+    textarea:focus {
+      border-color: #7F77DD;
+      background: #fff;
+    }
+
+    textarea::placeholder { color: #bbb; }
+
+    /* Radio buttons (tak/nie) */
+    .radio-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .radio-group input[type="radio"] { display: none; }
+
+    .radio-group label {
+      padding: 10px 20px;
+      border: 1.5px solid #e0e0dc;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #555;
+      transition: all 0.15s;
+      margin-bottom: 0;
+    }
+
+    .radio-group label:hover {
+      border-color: #7F77DD;
+      color: #7F77DD;
+      background: #EEEDFE;
+    }
+
+    .radio-group input:checked + label {
+      background: #7F77DD;
+      border-color: #7F77DD;
+      color: #fff;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #f0f0ec;
+      margin: 8px 0 32px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: #534AB7;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 8px;
+    }
+
+    .btn:hover { background: #3C3489; }
+    .btn:disabled { background: #bbb; cursor: not-allowed; }
+
+    /* Ekran podziękowania */
+    .thank-you {
+      display: none;
+      text-align: center;
+      padding: 24px 0;
+    }
+
+    .thank-you .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .thank-you h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .thank-you p {
+      color: #666;
+      font-size: 15px;
+    }
+
+    .error-msg {
+      display: none;
+      background: #FCEBEB;
+      color: #A32D2D;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 14px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">Twoja Firma</div>
+
+  <div id="form-section">
+    <h1>Jak oceniasz naszą współpracę?</h1>
+    <p class="subtitle">Twoja opinia zajmie mniej niż 2 minuty i pomoże nam się rozwijać.</p>
+
+    <hr class="divider">
+
+    <!-- Pytanie 1: Ogólna satysfakcja (gwiazdki) -->
+    <div class="question">
+      <label>1. Ogólna satysfakcja z naszych usług</label>
+      <div class="stars">
+        <input type="radio" id="s5" name="ocena_ogolna" value="5"><label for="s5" title="Doskonała">★</label>
+        <input type="radio" id="s4" name="ocena_ogolna" value="4"><label for="s4" title="Dobra">★</label>
+        <input type="radio" id="s3" name="ocena_ogolna" value="3"><label for="s3" title="Średnia">★</label>
+        <input type="radio" id="s2" name="ocena_ogolna" value="2"><label for="s2" title="Słaba">★</label>
+        <input type="radio" id="s1" name="ocena_ogolna" value="1"><label for="s1" title="Bardzo słaba">★</label>
+      </div>
+    </div>
+
+    <!-- Pytanie 2: NPS -->
+    <div class="question">
+      <label>2. Jak prawdopodobne jest, że polecisz nas znajomym lub partnerom biznesowym? (0 = wcale, 10 = na pewno)</label>
+      <div class="nps-scale">
+        <input type="radio" id="n0" name="nps" value="0"><label for="n0">0</label>
+        <input type="radio" id="n1" name="nps" value="1"><label for="n1">1</label>
+        <input type="radio" id="n2" name="nps" value="2"><label for="n2">2</label>
+        <input type="radio" id="n3" name="nps" value="3"><label for="n3">3</label>
+        <input type="radio" id="n4" name="nps" value="4"><label for="n4">4</label>
+        <input type="radio" id="n5" name="nps" value="5"><label for="n5">5</label>
+        <input type="radio" id="n6" name="nps" value="6"><label for="n6">6</label>
+        <input type="radio" id="n7" name="nps" value="7"><label for="n7">7</label>
+        <input type="radio" id="n8" name="nps" value="8"><label for="n8">8</label>
+        <input type="radio" id="n9" name="nps" value="9"><label for="n9">9</label>
+        <input type="radio" id="n10" name="nps" value="10"><label for="n10">10</label>
+      </div>
+      <div class="nps-labels">
+        <span>Nie poleciłbym</span>
+        <span>Zdecydowanie polecam</span>
+      </div>
+    </div>
+
+    <!-- Pytanie 3: Terminowość -->
+    <div class="question">
+      <label>3. Czy dotrzymywaliśmy ustalonych terminów?</label>
+      <div class="radio-group">
+        <input type="radio" id="t_tak" name="terminowosc" value="Tak"><label for="t_tak">Tak</label>
+        <input type="radio" id="t_czesc" name="terminowosc" value="Częściowo"><label for="t_czesc">Częściowo</label>
+        <input type="radio" id="t_nie" name="terminowosc" value="Nie"><label for="t_nie">Nie</label>
+      </div>
+    </div>
+
+    <!-- Pytanie 4: Komunikacja -->
+    <div class="question">
+      <label>4. Jak oceniasz jakość komunikacji z naszym zespołem?</label>
+      <div class="radio-group">
+        <input type="radio" id="k1" name="komunikacja" value="Bardzo dobra"><label for="k1">Bardzo dobra</label>
+        <input type="radio" id="k2" name="komunikacja" value="Dobra"><label for="k2">Dobra</label>
+        <input type="radio" id="k3" name="komunikacja" value="Do poprawy"><label for="k3">Do poprawy</label>
+        <input type="radio" id="k4" name="komunikacja" value="Słaba"><label for="k4">Słaba</label>
+      </div>
+    </div>
+
+    <!-- Pytanie 5: Komentarz -->
+    <div class="question">
+      <label>5. Co możemy zrobić lepiej? (opcjonalne)</label>
+      <textarea name="komentarz" id="komentarz" placeholder="Twoje sugestie i uwagi..."></textarea>
+    </div>
+
+    <button class="btn" id="submit-btn" onclick="submitForm()">Wyślij opinię →</button>
+    <div class="error-msg" id="error-msg">Coś poszło nie tak. Spróbuj ponownie lub skontaktuj się z nami.</div>
+  </div>
+
+  <!-- Ekran podziękowania -->
+  <div class="thank-you" id="thank-you">
+    <div class="icon">🎉</div>
+    <h2>Dziękujemy za opinię!</h2>
+    <p>Twoja odpowiedź została zapisana. Cenimy każdą informację zwrotną.</p>
+  </div>
+</div>
+
+<script>
+  // ─── KONFIGURACJA ────────────────────────────────────────────────
+  // Wklej tutaj URL swojego Google Apps Script Web App
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz3qlM75KCpxC15nmJPBvcgCHDUbrfN4e0ghsosVrrBl3RgH3lJ7azLjEf7XoOuxvXQAg/exec';
+  // ─────────────────────────────────────────────────────────────────
+
+  // Odczytaj parametr ?id= z URL
+  function getClientId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id') || 'NIEZNANY';
+  }
+
+  function submitForm() {
+    const btn = document.getElementById('submit-btn');
+    const errorMsg = document.getElementById('error-msg');
+    errorMsg.style.display = 'none';
+
+    const data = {
+      klient_id:    getClientId(),
+      ocena_ogolna: document.querySelector('input[name="ocena_ogolna"]:checked')?.value || '',
+      nps:          document.querySelector('input[name="nps"]:checked')?.value || '',
+      terminowosc:  document.querySelector('input[name="terminowosc"]:checked')?.value || '',
+      komunikacja:  document.querySelector('input[name="komunikacja"]:checked')?.value || '',
+      komentarz:    document.getElementById('komentarz').value.trim(),
+      data:         new Date().toLocaleString('pl-PL')
+    };
+
+    // Walidacja — wymaga minimum gwiazdek i NPS
+    if (!data.ocena_ogolna || !data.nps) {
+      alert('Proszę ocenić satysfakcję ogólną i podać wynik NPS.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Wysyłanie...';
+
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(() => {
+      document.getElementById('form-section').style.display = 'none';
+      document.getElementById('thank-you').style.display = 'block';
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.textContent = 'Wyślij opinię →';
+      errorMsg.style.display = 'block';
+    });
+  }
+</script>
+
+</body>
+</html>
