@@ -369,10 +369,12 @@
     btn.disabled = true;
     btn.textContent = 'Wysyłanie...';
 
+        const formData = new FormData();
+    formData.append('body', JSON.stringify(data));
+    
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     })
     .then(() => {
